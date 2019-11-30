@@ -3,7 +3,9 @@
 (in-package #:capstone)
 
 (cffi:define-foreign-library capstone
-  (:unix "libcapstone.so.3.0")
+    (:unix (:or "libcapstone.so.3.0"
+                "libcapstone.so.3"
+                "libcapstone.so"))
   (t (:default "libcapstone")))
 
 (defun load-capstone-library ()
