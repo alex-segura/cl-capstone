@@ -20,13 +20,13 @@
   (enum-key 'capstone-ffi:m68k-op-type (cs-m68k-op.type op)))
 
 (defmethod operand-immediate-value ((op capstone-ffi:cs-m68k-op))
-  (cs-m68k-op.imm m68k))
+  (cs-m68k-op.imm op))
 
 (defmethod operand-double-value ((op capstone-ffi:cs-m68k-op))
-  (cs-m68k-op.dimm m68k))
+  (cs-m68k-op.dimm op))
 
 (defmethod operand-float-value ((op capstone-ffi:cs-m68k-op))
-  (cs-m68k-op.simm m68k))
+  (cs-m68k-op.simm op))
 
 (defmethod operand-register ((op capstone-ffi:cs-m68k-op))
   (enum-key 'capstone-ffi:m68k-reg (cs-m68k-op.reg op)))
