@@ -12,10 +12,6 @@
 
 (defun print-mips-instruction (insn))
 
-(def-suite mips
-  :description "Test MIPSen"
-  :in capstone)
-
 (in-suite mips)
 
 (test test-mips64-be

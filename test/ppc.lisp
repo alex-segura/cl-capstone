@@ -1,3 +1,5 @@
+;;;; ppc.lisp
+
 (in-package #:capstone-test)
 
 (defparameter *ppc-code*
@@ -18,10 +20,6 @@
           (instruction-address insn)
           (instruction-mnemonic insn)
           (instruction-operand-string insn)))
-
-(def-suite ppc
-  :description "Tests for PowerPC"
-  :in capstone)
 
 (in-suite ppc)
 
