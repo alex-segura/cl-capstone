@@ -121,7 +121,8 @@
   (when (instruction-eflags-updated insn)))
 
 (def-suite x86
-  :description "Tests for X86.")
+  :description "Tests for X86"
+  :in capstone)
 
 (in-suite x86)
 

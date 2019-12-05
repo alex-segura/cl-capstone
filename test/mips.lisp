@@ -12,8 +12,11 @@
 
 (defun print-mips-instruction (insn))
 
-(def-suite test-mips
-  :description "Test MIPSen")
+(def-suite mips
+  :description "Test MIPSen"
+  :in capstone)
+
+(in-suite mips)
 
 (test test-mips64-be
   (is (null

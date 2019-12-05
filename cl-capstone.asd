@@ -1,3 +1,5 @@
+;;;; cl-capstone.asd
+
 (defsystem #:cl-capstone
   :name "cl-capstone"
   :description "Bindings to the capstone engine disassembly library"
@@ -54,7 +56,7 @@
   :perform (test-op (o s)
                     (uiop:symbol-call :fiveam
                                       '#:run!
-                                      (uiop:find-symbol* '#:x86 :capstone-test)))
+                                      (uiop:find-symbol* '#:capstone :capstone-test)))
   :pathname "test"
   :serial t
   :components

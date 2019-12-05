@@ -19,6 +19,12 @@
           (instruction-mnemonic insn)
           (instruction-operand-string insn)))
 
+(def-suite ppc
+  :description "Tests for PowerPC"
+  :in capstone)
+
+(in-suite ppc)
+
 (test test-ppc
   (is (null
        (with-open-handle (csh :ppc :big-endian)
