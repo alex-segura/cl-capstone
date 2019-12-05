@@ -1,4 +1,4 @@
-(asdf:defsystem #:cl-capstone
+(defsystem #:cl-capstone
   :name "cl-capstone"
   :description "Bindings to the capstone engine disassembly library"
   :version "0.0.1"
@@ -42,14 +42,19 @@
      (:file "tms320c64x")
      (:file "xcore")
      (:file "x86")))
-   (:file "capstone")))
+   (:file "capstone"))
+  :in-order-to ((test-op (test-op #:cl-capstone-test))))
 
-(defsystem cl-capstone-test
+(defsystem #:cl-capstone-test
   :name "cl-capstone-test"
   :description "Test suite for CL-CAPSTONE library"
   :version "0.0.1"
   :author "Alex Segura <alex@lispm.dev>"
   :depends-on (#:cl-capstone #:fiveam)
+  :perform (test-op (o s)
+                    (uiop:symbol-call :fiveam
+                                      '#:run!
+                                      (uiop:find-symbol* '#:x86 :capstone-test)))
   :pathname "test"
   :serial t
   :components
