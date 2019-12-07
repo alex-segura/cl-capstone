@@ -123,24 +123,19 @@
 (in-suite x86)
 
 (test test-x86-64
-  (is (null
-       (with-open-handle (csh :x86 :64)
-         (set-option csh :detail :on)
-         (do-disassembled-instructions (insn csh *x86-code-64*)
-           (print-x86-detail :64 insn))))))
-
+  (with-open-handle (csh :x86 :64)
+    (set-option csh :detail :on)
+    (is (null (do-disassembled-instructions (insn csh *x86-code-64*)
+                (print-x86-detail :64 insn))))))
 
 (test test-x86-32
-  (is (null
-       (with-open-handle (csh :x86 :32)
-         (set-option csh :detail :on)
-         (do-disassembled-instructions (insn csh *x86-code-32*)
-           (print-x86-detail :32 insn))))))
-
+  (with-open-handle (csh :x86 :32)
+    (set-option csh :detail :on)
+    (is (null (do-disassembled-instructions (insn csh *x86-code-32*)
+                (print-x86-detail :32 insn))))))
 
 (test test-x86-16
-  (is (null
-       (with-open-handle (csh :x86 :16)
-         (set-option csh :detail :on)
-         (do-disassembled-instructions (insn csh *x86-code-16*)
-           (print-x86-detail :16 insn))))))
+  (with-open-handle (csh :x86 :16)
+    (set-option csh :detail :on)
+    (is (null (do-disassembled-instructions (insn csh *x86-code-16*)
+                (print-x86-detail :16 insn))))))

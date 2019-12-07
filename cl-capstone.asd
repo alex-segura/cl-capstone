@@ -61,6 +61,7 @@
   :serial t
   :components
   ((:file "package")
+   (:file "suite")
    (:file "util")
    (:file "x86")
    (:file "mips")

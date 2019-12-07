@@ -18,9 +18,6 @@
   (:report (lambda (condition stream)
              (format stream "~a" (capstone-error-string condition)))))
 
-(defvar *architecture*)
-(defvar *csh*)
-
 (defmacro check-rc (form)
   (with-gensyms (rc)
     `(let ((,rc ,form))
@@ -35,6 +32,14 @@
          (error "NULL returned from ~A" ',form)
          ,form)))
 
+(defvar *architecture*)
+
+(defstruct handle
+  csh
+  architecture
+  mode
+  open-p)
+
 (defun version ()
   "Retrieve the version of the loaded capstone library.
 Returns multiple values: major version and minor version."
@@ -47,13 +52,18 @@ Returns multiple values: major version and minor version."
   "Open a CS handle using ARCHITECTURE and MODE."
   (c-with ((csh capstone-ffi:csh))
     (check-rc (cs-open arch mode (csh &)))
-    csh))
+    (make-handle :csh csh
+                 :architecture arch
+                 :mode mode
+                 :open-p t)))
 
 (defun close-handle (handle)
   "Close the CS handle HANDLE."
-  (c-with ((csh capstone-ffi:csh))
-    (setf csh handle)
-    (check-rc (cs-close (csh &)))))
+  (when (handle-open-p handle)
+    (c-with ((csh capstone-ffi:csh))
+      (setf csh (handle-csh handle))
+      (prog1 (check-rc (cs-close (csh &)))
+        (setf (handle-open-p handle) nil)))))
 
 (defcallback skipdata-callback :unsigned-long
     ((code :pointer)
@@ -66,21 +76,19 @@ Returns multiple values: major version and minor version."
 
 (defun set-option (handle option value)
   "Set OPTION to VALUE for the open handle HANDLE."
-  (let ((opt (enum-value 'capstone-ffi:cs-opt-type option)))
-    (check-rc (cs-option handle opt
-                         (if (keyword value)
-                             (enum-value 'capstone-ffi:cs-opt-value value)
-                             value)))))
+  (with-slots (csh) handle
+    (let ((opt (enum-value 'capstone-ffi:cs-opt-type option))
+          (val (if (keywordp value)
+                   (enum-value 'capstone-ffi:cs-opt-value value)
+                   value)))
+      (check-rc (cs-option csh opt val)))))
 
-(defun errno (handle) (cs-errno handle))
+(defun errno (handle) (cs-errno (handle-csh handle)))
 
 (defun call-with-open-handle (f architecture mode)
-  (let ((*architecture* architecture))
-    (declare (special *architecture*))
-    (let ((*csh* (open-handle architecture mode)))
-      (declare (special *csh*))
-      (unwind-protect (funcall f *csh*)
-        (close-handle *csh*)))))
+  (let ((handle (open-handle architecture mode)))
+    (unwind-protect (funcall f handle)
+      (close-handle handle))))
 
 (defmacro with-open-handle ((var architecture mode &rest modes) &body body)
   "Bind VAR to an open CSH in the context of BODY. The handle is opened using the architecture
@@ -99,7 +107,7 @@ keyword ARCHITECTURE, mode keyword MODE, and any additional MODES."
     ,(if (eql mode :big-endian) :little-endian mode)))
 
 (defun call-with-cs-insn (function handle)
-  (let ((insn (check-null (cs-malloc handle))))
+  (let ((insn (check-null (cs-malloc (handle-csh handle)))))
     (unwind-protect (funcall function insn)
       (cs-free insn 1))))
 
@@ -120,10 +128,12 @@ th START-ADDRESS keyword."
              (setf ,code* ,code
                    ,size (length ,bytes)
                    ,addr ,start-address)
-             (loop :for ,ret := (cs-disasm-iter ,handle
+             (loop :for ,ret := (cs-disasm-iter (handle-csh ,handle)
                                                 (,code* &) (,size &) (,addr &) (ptr ,insn))
                    :until (zerop ,ret)
-                   :do (let ((,var ,insn)) ,@body))))))))
+                   :do (let ((,var ,insn)
+                             (*architecture* (handle-architecture ,handle)))
+                         ,@body))))))))
 
 (defmacro do-instruction-operands ((var count instruction) &body body)
   (with-gensyms (i)

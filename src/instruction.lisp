@@ -2,6 +2,36 @@
 
 (in-package #:capstone)
 
+(defun architecture-specific-detail (instruction)
+  (ecase *architecture*
+    (:x86 (cs-insn.detail*.x86 instruction))
+    (:arm (cs-insn.detail*.arm instruction))
+    (:arm64 (cs-insn.detail*.arm64 instruction))
+    (:evm (cs-insn.detail*.evm instruction))
+    (:sparc (cs-insn.detail*.sparc instruction))
+    (:sysz (cs-insn.detail*.sysz instruction))
+    (:mips (cs-insn.detail*.mipsen instruction))
+    (:m680x (cs-insn.detail*.m680x instruction))
+    (:m68k (cs-insn.detail*.m68k instruction))
+    (:tms320c64x (cs-insn.detail*.tms320c64x instruction))
+    (:xcore (cs-insn.detail*.xcore instruction))
+    (:ppc (cs-insn.detail*.ppc instruction))))
+
+(defun architecture-group-enum ()
+  (ecase *architecture*
+    (:x86 'capstone-ffi:x86-insn-group)
+    (:arm 'capstone-ffi:arm-insn-group)
+    (:arm64 'capstone-ffi:arm64-insn-group)
+    (:evm 'capstone-ffi:evm-insn-group)
+    (:sparc 'capstone-ffi:sparc-insn-group)
+    (:sysz 'capstone-ffi:sysz-insn-group)
+    (:mips 'capstone-ffi:mips-insn-group)
+    (:m680x 'capstone-ffi:m680x-group-type)
+    (:m68k 'capstone-ffi:m68k-group-type)
+    (:tms320c64x 'capstone-ffi:tms320c64x-insn-group)
+    (:xcore 'capstone-ffi:xcore-insn-group)
+    (:ppc 'capstone-ffi:ppc-insn-group)))
+
 (defmacro check-detail (form)
   (with-gensyms (wrapper)
     `(let ((,wrapper ,form))
@@ -50,36 +80,6 @@
     (loop :for i :from 0 :below count
           :collect (cs-insn.detail*.regs-write[] instruction i))))
 
-(defun architecture-specific-detail (instruction)
-  (ecase *architecture*
-    (:x86 (cs-insn.detail*.x86 instruction))
-    (:arm (cs-insn.detail*.arm instruction))
-    (:arm64 (cs-insn.detail*.arm64 instruction))
-    (:evm (cs-insn.detail*.evm instruction))
-    (:sparc (cs-insn.detail*.sparc instruction))
-    (:sysz (cs-insn.detail*.sysz instruction))
-    (:mips (cs-insn.detail*.mipsen instruction))
-    (:m680x (cs-insn.detail*.m680x instruction))
-    (:m68k (cs-insn.detail*.m68k instruction))
-    (:tms320c64x (cs-insn.detail*.tms320c64x instruction))
-    (:xcore (cs-insn.detail*.xcore instruction))
-    (:ppc (cs-insn.detail*.ppc instruction))))
-
-(defun architecture-group-enum ()
-  (ecase *architecture*
-    (:x86 'capstone-ffi:x86-insn-group)
-    (:arm 'capstone-ffi:arm-insn-group)
-    (:arm64 'capstone-ffi:arm64-insn-group)
-    (:evm 'capstone-ffi:evm-insn-group)
-    (:sparc 'capstone-ffi:sparc-insn-group)
-    (:sysz 'capstone-ffi:sysz-insn-group)
-    (:mips 'capstone-ffi:mips-insn-group)
-    (:m680x 'capstone-ffi:m680x-group-type)
-    (:m68k 'capstone-ffi:m68k-group-type)
-    (:tms320c64x 'capstone-ffi:tms320c64x-insn-group)
-    (:xcore 'capstone-ffi:xcore-insn-group)
-    (:ppc 'capstone-ffi:ppc-insn-group)))
-
 (defgeneric operand-ref (object i)
   (:method ((insn capstone-ffi:cs-insn) (i integer))
     (check-detail insn)
@@ -109,6 +109,10 @@
     (mask-keywords 'cs-access (call-next-method))))
 
 (defgeneric operand-type (operand))
+
+(defgeneric operand-type-p (operand type)
+  (:method ((operand t) (type symbol))
+    (eql (operand-type operand) (alexandria:make-keyword type))))
 
 (defgeneric memory-operand-base-register (operand))
 (defgeneric memory-operand-index-register (operand))
