@@ -136,6 +136,8 @@ th START-ADDRESS keyword."
                          ,@body))))))))
 
 (defmacro do-instruction-operands ((var count instruction) &body body)
+  "Iterate over the operands of INSTRUCTION, binding VAR sequentially to each operand and COUNT
+to the operand's index, in the context of BODY."
   (with-gensyms (i)
     `(dotimes (,i (operand-count ,instruction))
        (let ((,var (operand-ref ,instruction ,i))
