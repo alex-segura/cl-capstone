@@ -2,8 +2,7 @@
 
 (cl:in-package #:capstone-ffi)
 
-(autowrap:c-include
- "/usr/local/include/capstone/capstone.h"
+(autowrap:c-include "/usr/local/include/capstone/capstone.h"
  :accessor-package #:capstone-ffi.accessors
  :function-package #:capstone-ffi.functions
  :exclude-sources ("/usr/include")
@@ -14,4 +13,5 @@
                    "bits/stdint"
                    "machine/_types.h")
  :exclude-definitions ("truncate" "ftruncate" "abs")
- :spec-path '(:cl-capstone :autowrap-spec))
+ :spec-path '(:cl-capstone :autowrap-spec)
+ :release-p cl:t)
