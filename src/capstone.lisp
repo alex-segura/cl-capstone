@@ -32,7 +32,8 @@
          (error "NULL returned from ~A" ',form)
          ,form)))
 
-(defvar *architecture*)
+(defvar *handle*)
+(define-symbol-macro *architecture* (handle-architecture *handle*))
 
 (defstruct handle
   csh
@@ -131,9 +132,7 @@ th START-ADDRESS keyword."
              (loop :for ,ret := (cs-disasm-iter (handle-csh ,handle)
                                                 (,code* &) (,size &) (,addr &) (ptr ,insn))
                    :until (zerop ,ret)
-                   :do (let ((,var ,insn)
-                             (*architecture* (handle-architecture ,handle)))
-                         ,@body))))))))
+                   :do (let ((,var ,insn) (*handle* ,handle)) ,@body))))))))
 
 (defmacro do-instruction-operands ((var count instruction) &body body)
   "Iterate over the operands of INSTRUCTION, binding VAR sequentially to each operand and COUNT
