@@ -32,6 +32,20 @@
     (:xcore 'capstone-ffi:xcore-insn-group)
     (:ppc 'capstone-ffi:ppc-insn-group)))
 
+(defun architecture-register-enum ()
+  (ecase *architecture*
+    (:x86 'capstone-ffi:x86-reg)
+    (:arm 'capstone-ffi:arm-reg)
+    (:arm64 'capstone-ffi:arm64-reg)
+    (:sparc 'capstone-ffi:sparc-reg)
+    (:sysz 'capstone-ffi:sysz-reg)
+    (:mips 'capstone-ffi:mips-reg)
+    (:m680x 'capstone-ffi:m680x-reg)
+    (:m68k 'capstone-ffi:m68k-reg)
+    (:tms320c64x 'capstone-ffi:tms320c64x-reg)
+    (:xcore 'capstone-ffi:xcore-reg)
+    (:ppc 'capstone-ffi:ppc-reg)))
+
 (defmacro check-detail (form)
   (with-gensyms (wrapper)
     `(let ((,wrapper ,form))
@@ -70,15 +84,19 @@
 
 (defun instruction-registers-read (instruction)
   (check-detail instruction)
-  (let ((count (cs-insn.detail*.regs-read-count instruction)))
+  (let ((count (cs-insn.detail*.regs-read-count instruction))
+        (reg-enum (architecture-register-enum)))
     (loop :for i :from 0 :below count
-          :collect (cs-insn.detail*.regs-read[] instruction i))))
+          :for regid := (cffi:pointer-address (cs-insn.detail*.regs-read[] instruction i))
+          :collect (enum-key reg-enum regid))))
 
 (defun instruction-registers-written (instruction)
   (check-detail instruction)
-  (let ((count (cs-insn.detail*.regs-write-count instruction)))
+  (let ((count (cs-insn.detail*.regs-write-count instruction))
+        (reg-enum (architecture-register-enum)))
     (loop :for i :from 0 :below count
-          :collect (cs-insn.detail*.regs-write[] instruction i))))
+          :for regid := (cffi:pointer-address (cs-insn.detail*.regs-read[] instruction i))
+          :collect (enum-key reg-enum regid))))
 
 (defgeneric operand-ref (object i)
   (:method ((insn capstone-ffi:cs-insn) (i integer))
