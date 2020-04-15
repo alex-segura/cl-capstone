@@ -27,6 +27,7 @@
    (:file "library")
    (:file "autowrap")
    (:file "bitfield")
+   (:file "capstone")
    (:file "instruction")
    (:module :arch
     :pathname "arch"
@@ -43,8 +44,7 @@
      (:file "systemz")
      (:file "tms320c64x")
      (:file "xcore")
-     (:file "x86")))
-   (:file "capstone"))
+     (:file "x86"))))
   :in-order-to ((test-op (test-op #:cl-capstone-test))))
 
 (defsystem #:cl-capstone-test
