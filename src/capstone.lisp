@@ -75,6 +75,14 @@ Returns multiple values: major version and minor version."
       user-data
     (funcall lisp-function code code-size offset user-data lisp-user-data)))
 
+#+nil
+(defcallback generic-callback :unsigned-long
+    ((code :pointer)
+     (code-size :unsigned-long)
+     (offset :unsigned-long)
+     (user-data :pointer))
+  (let ((callbacks (gethash user-data)))))
+
 (defun set-option (handle option value)
   "Set OPTION to VALUE for the open handle HANDLE."
   (with-slots (csh) handle
@@ -92,8 +100,7 @@ Returns multiple values: major version and minor version."
       (close-handle handle))))
 
 (defmacro with-open-handle ((var architecture mode &rest modes) &body body)
-  "Bind VAR to an open CSH in the context of BODY. The handle is opened using the architecture
-keyword ARCHITECTURE, mode keyword MODE, and any additional MODES."
+  "Bind VAR to an open CSH in the context of BODY. The handle is opened using the architecture keyword ARCHITECTURE, mode keyword MODE, and any additional MODES."
   `(call-with-open-handle
     (lambda (,var)
       ,(when (or modes (eql mode :big-endian))
@@ -116,9 +123,7 @@ keyword ARCHITECTURE, mode keyword MODE, and any additional MODES."
   `(call-with-cs-insn (lambda (,name) ,@body) ,handle))
 
 (defmacro do-disassembled-instructions ((var handle bytes &key (start-address 0)) &body body)
-  "Iteratively disassemble BYTES using the opened handle HANDLE. VAR is bound to the disassembled
-instruction in the context of BODY. The address of the first instruction can be specified using
-th START-ADDRESS keyword."
+  "Iteratively disassemble BYTES using the opened handle HANDLE. VAR is bound to the disassembled instruction in the context of BODY. The address of the first instruction can be specified using the START-ADDRESS keyword."
   (once-only (bytes handle)
     (with-gensyms (insn code code* size addr ret)
       `(with-cs-insn (,insn ,handle)
@@ -135,8 +140,7 @@ th START-ADDRESS keyword."
                    :do (let ((,var ,insn) (*handle* ,handle)) ,@body))))))))
 
 (defmacro do-instruction-operands ((var count instruction) &body body)
-  "Iterate over the operands of INSTRUCTION, binding VAR sequentially to each operand and COUNT
-to the operand's index, in the context of BODY."
+  "Iterate over the operands of INSTRUCTION, binding VAR sequentially to each operand and COUNT to the operand's index, in the context of BODY."
   (with-gensyms (i)
     `(dotimes (,i (operand-count ,instruction))
        (let ((,var (operand-ref ,instruction ,i))

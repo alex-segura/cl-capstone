@@ -47,8 +47,8 @@
      (:file "x86"))))
   :in-order-to ((test-op (test-op #:cl-capstone-test))))
 
-(defsystem #:cl-capstone-test
-  :name "cl-capstone-test"
+(defsystem #:cl-capstone/test
+  :name "cl-capstone/test"
   :description "Test suite for CL-CAPSTONE library"
   :version "0.0.1"
   :author "Alex Segura <alex@lispm.dev>"
